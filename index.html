@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>शिक्षक साथी: एडमिन</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f3fa;--card:#fff;--ink:#16182b;--mute:#5d6078;--line:#d8dbea;--pri:#3b3f9e;--warn:#b42318;--ok:#0f6b5c}
+@media (prefers-color-scheme:dark){:root{--bg:#12131f;--card:#1a1c2e;--ink:#e9eaf6;--mute:#a0a3bd;--line:#2d3048;--pri:#9aa0ff;--warn:#ff8a7a;--ok:#3cc4a8}}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans Devanagari","Mangal",system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{padding:14px 16px 40px;max-width:760px;margin:0 auto}
+h1{font-size:20px;margin:0}h2{font-size:17px;margin:0 0 8px}
+.sub{color:var(--mute);font-size:14px;margin:0 0 10px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:14px;color:var(--mute);margin:10px 0 3px}
+input,select,textarea{width:100%;padding:10px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px}
+input[type=checkbox]{width:auto}textarea{min-height:120px}
+.btn{padding:10px 14px;border:0;border-radius:8px;font:inherit;font-weight:600;color:#fff;background:var(--pri);margin:10px 8px 0 0}
+.btn.g{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn.d{background:transparent;color:var(--warn);border:1px solid var(--warn)}
+.btn.s{padding:5px 10px;margin:4px 6px 0 0;font-size:13px}.btn:disabled{opacity:.5}
+.tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
+.tabs button{flex:1 0 auto;padding:9px 12px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600}
+.tabs button.on{border-color:var(--pri);color:var(--pri)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.chip{font-size:12px;padding:1px 9px;border-radius:99px;color:#fff;background:#6b7280;margin-right:4px;display:inline-block}
+.c-s{background:#6d28d9}.c-c{background:#1d4ed8}.c-p{background:#b45309}.c-b{background:#b42318}
+.msg{margin-top:8px;font-size:14px;color:var(--warn)}.msg.ok{color:var(--ok)}
+.sheet{position:relative;background:#fff;color:#000;width:210mm;height:296mm;margin:0 auto;border:1px solid #999;overflow:hidden;font-size:15px}
+.sheet .in{position:relative;height:100%}.sheet .hd{height:20%;padding:7mm 10mm 3mm;border-bottom:2px solid #000;font-size:14px;overflow:hidden}
+.sheet .bd{height:80%;padding:5mm 12mm;overflow:hidden}.sheet h3{text-align:center;font-size:21px;margin:0;line-height:1.3}
+.sheet .sub2{text-align:center;margin:0 0 5px}.sheet .meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px 10px;border:1.5px solid #000;padding:4px 8px;margin:4px 0 6px;font-size:14px}
+.sheet ol{padding-left:22px;margin:10px 0}.sheet li{margin-bottom:22px}
+.wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:90px;font-weight:700;color:rgba(0,0,0,.07);transform:rotate(-35deg);pointer-events:none;white-space:nowrap}
+.scrollx{overflow-x:auto}
+.hide{display:none!important}
+.lst{max-height:420px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:0 10px;margin-top:8px}
+.item{padding:10px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--bg);border-radius:8px;padding:10px}.stat b{font-size:22px;display:block}
+.pw{display:flex;gap:6px;align-items:center;margin:6px 0 0;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<section id="auth">
+ <h1>एडमिन लॉगिन</h1><p class="sub">सिर्फ़ सुपर एडमिन और को-एडमिन के लिए</p>
+ <div class="box">
+  <label>मोबाइल नंबर</label><input id="lMob" type="tel" maxlength="10" inputmode="numeric" autocomplete="username">
+  <label>पासवर्ड</label><input id="lPw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <label class="pw"><input type="checkbox" onchange="$('lPw').type=this.checked?'text':'password'"> पासवर्ड दिखाएँ</label>
+  <div id="mfaBox" class="hide"><label>ऐप का 6 अंक का कोड</label><input id="mfaC" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><button class="btn" onclick="mfaGo()">सत्यापित करें</button></div>
+  <button class="btn" id="bL" onclick="login()">लॉगिन करें</button>
+  <div class="msg" id="lMsg"></div>
+ </div>
+</section>
+
+<section id="app" class="hide">
+ <div class="top"><div><h1 id="uName"></h1><span class="chip c-s" id="uRole"></span></div><div><button class="btn g s" onclick="$('pwBox').classList.toggle('hide')">🔑 पासवर्ड बदलें</button><button class="btn g s" onclick="mfaStart()">🔐 दो-चरण</button><button class="btn g s" onclick="logout()">बाहर निकलें</button></div></div>
+ <div class="box hide" id="mfaSet"><h2>दो-चरण सत्यापन (ऐप कोड)</h2><p class="sub">Google Authenticator जैसे ऐप में नीचे की गुप्त कुंजी जोड़िए (ऐप में "कुंजी डालें" चुनकर)। फिर ऐप का 6 अंक का कोड यहाँ लिखकर पक्का कीजिए। इसके बाद हर लॉगिन पर यह कोड माँगा जाएगा।</p><div id="mfaQr"></div><div class="sub" id="mfaSecret" style="word-break:break-all;user-select:all"></div><input id="mfaV" inputmode="numeric" maxlength="6" placeholder="6 अंक का कोड"><button class="btn" onclick="mfaOn()">चालू करें</button><button class="btn g" onclick="$('mfaSet').classList.add('hide')">बंद करें</button><div class="msg" id="mfaM"></div></div>
+ <div class="box hide" id="pwBox"><h2>पासवर्ड बदलें</h2>
+  <label>अभी का पासवर्ड</label><input id="pw0" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <label>नया पासवर्ड (कम से कम 8 अक्षर)</label><input id="pw1" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <label>नया पासवर्ड फिर से</label><input id="pw2" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <label style="display:flex;gap:6px;align-items:center;margin:6px 0 0;font-size:14px"><input type="checkbox" style="width:auto" onchange="['pw0','pw1','pw2'].forEach(function(i){$(i).type=this.checked?'text':'password'},this)"> पासवर्ड दिखाएँ</label>
+  <button class="btn" id="pwB" onclick="changePw()">पासवर्ड बदलें</button><button class="btn g" onclick="$('pwBox').classList.add('hide')">बंद करें</button>
+  <div class="msg" id="pwM"></div></div>
+ <div class="tabs" id="tabs"></div>
+
+ <div id="pT" class="hide">
+  <div class="box hide" id="coBox"><h2 id="coH"></h2><div id="coChk"></div>
+   <button class="btn" onclick="coSave()">को-एडमिन बनाएँ / अधिकार सहेजें</button><button class="btn d" onclick="coDel()">को-एडमिन हटाएँ</button><button class="btn g" onclick="$('coBox').classList.add('hide')">बंद करें</button>
+   <div class="msg" id="coMsg"></div></div>
+  <div class="box"><h2>शिक्षक <span id="uCnt" class="sub"></span></h2>
+   <input id="uQ" placeholder="नाम, मोबाइल या विद्यालय से खोजें" oninput="pg=0;loadU()">
+   <div class="lst" id="uList"></div>
+   <div><button class="btn g s" onclick="if(pg>0){pg--;loadU()}">← पिछले</button><button class="btn g s" id="nx" onclick="pg++;loadU()">अगले 25 →</button> <span class="sub" id="pgN"></span></div>
+   <div class="msg" id="uMsg"></div></div>
+ </div>
+
+ <div id="pM" class="hide">
+  <div class="box"><h2>मास्टर सूची जोड़ें</h2>
+   <label>क्या जोड़ना है</label>
+   <select id="mCat" onchange="mChg()"><option value="subject">विषय</option><option value="district">जिला</option><option value="block">प्रखंड</option><option value="panchayat">पंचायत</option><option value="school">विद्यालय</option></select>
+   <div id="wD" class="hide"><label>जिला</label><select id="mD" onchange="mChain(1)"></select></div>
+   <div id="wB" class="hide"><label>प्रखंड</label><select id="mB" onchange="mChain(2)"></select></div>
+   <div id="wP" class="hide"><label>पंचायत</label><select id="mP" onchange="showM()"></select></div>
+   <label>नाम (हर पंक्ति में एक। पूरी सूची एक साथ चिपका सकते हैं)</label><textarea id="mNames"></textarea>
+   <button class="btn" id="mBtn" onclick="mAdd()">जोड़ें</button><div class="msg" id="mMsg"></div>
+  </div>
+  <div class="box"><h2>अभी की सूची <span id="mCnt" class="sub"></span></h2><div class="lst" id="mList"></div></div>
+ </div>
+
+ <div id="pL" class="hide">
+  <div class="box"><h2 id="lH">नया पाठ टीका</h2>
+   <div class="row"><div><label>दिनांक</label><input id="lDate" type="date"></div><div><label>वर्ग</label><select id="lCls"></select></div></div>
+   <label>विषय</label><select id="lSub"></select>
+   <label>पाठ का नाम एवं संख्या</label><input id="lCh" placeholder="जैसे: पाठ 4, हमारा पर्यावरण">
+   <label>प्रस्तावित पाठ की संक्षिप्त टिप्पणी</label><textarea id="lNote" placeholder="घंटियों की स्थिति: 12 में से 11वीं घंटी पूर्ण&#10;संक्षिप्त टिप्पणी: ...&#10;श्यामपट्ट कार्य: ...&#10;गृहकार्य: ..."></textarea>
+   <button class="btn" id="lBtn" onclick="saveL()">प्रकाशित करें</button><button class="btn g hide" id="lCan" onclick="rstL()">रद्द करें</button><div class="msg" id="lMsg2"></div></div>
+  <div class="box"><h2>तैयार पाठ टीका <span id="lCnt" class="sub"></span></h2>
+   <div class="row"><input id="lfD" type="date" onchange="listL()"><select id="lfC" onchange="listL()"></select></div>
+   <div class="row" style="margin-top:8px"><select id="lfS" onchange="listL()"></select><input id="lfQ" placeholder="शब्द से खोजें" oninput="listL()"></div>
+   <div class="lst" id="lList"></div><div class="msg" id="lMsg3"></div></div>
+ </div>
+
+ <div id="pQ" class="hide">
+  <div class="box"><h2 id="qH">नया प्रश्न पत्र</h2>
+   <label>शीर्षक</label><input id="qT" placeholder="जैसे: गणित, इकाई 1 अभ्यास">
+   <div class="row"><div><label>प्रकार</label><select id="qE"><option>दैनिक अभ्यास</option><option>मासिक</option><option>त्रैमासिक</option><option>वार्षिक</option></select></div><div><label>कक्षा</label><select id="qC"></select></div></div>
+   <div class="row"><div><label>विषय</label><select id="qS"></select></div><div><label>पूर्णांक</label><input id="qM" type="number" value="10"></div></div>
+   <label>महीना</label><select id="qMo"></select>
+   <label>प्रश्न (हर पंक्ति में एक प्रश्न)</label><textarea id="qQ" style="min-height:170px"></textarea>
+   <label>संशोधन में क्या बदला (वैकल्पिक)</label><input id="qN">
+   <button class="btn" id="qB" onclick="saveQ()">मसौदा सहेजें</button><button class="btn g" onclick="prevForm()">पूर्वावलोकन</button><button class="btn g hide" id="qX" onclick="rstQ()">रद्द करें</button><div class="msg" id="qMsg"></div></div>
+  <div class="box hide" id="qPv"><h2>पूर्वावलोकन (A4)</h2><div class="scrollx"><div class="sheet" id="qSheet"></div></div><button class="btn g" onclick="$('qPv').classList.add('hide')">बंद करें</button></div>
+  <div class="box"><h2>प्रश्न पत्र <span id="qCnt" class="sub"></span></h2>
+   <div class="row"><select id="qfSt" onchange="listQ()"><option value="">सभी स्थिति</option><option value="draft">मसौदा</option><option value="published">प्रकाशित</option><option value="archived">संग्रह</option></select><select id="qfC" onchange="listQ()"></select></div>
+   <div class="row" style="margin-top:8px"><select id="qfS" onchange="listQ()"></select><input id="qfQ" placeholder="शीर्षक का शब्द" oninput="listQ()"></div>
+   <div class="lst" id="qList"></div><div class="msg" id="qMsg2"></div></div>
+ </div>
+
+ <div id="pC" class="hide">
+  <div class="box"><h2 id="cH">नई सामग्री</h2>
+   <div class="row"><div><label>श्रेणी</label><select id="cCat"></select></div><div><label>दिनांक (इसी दिन शिक्षकों को दिखेगी)</label><input id="cDate" type="date"></div></div>
+   <button class="btn g s" onclick="$('cNew').classList.toggle('hide')">+ नई श्रेणी जोड़ें</button>
+   <div id="cNew" class="hide"><input id="cNewN" placeholder="नई श्रेणी का नाम" style="margin-top:6px"><button class="btn s" onclick="addCat()">जोड़ें</button></div>
+   <label>शीर्षक</label><input id="cT"><label>विवरण</label><textarea id="cB"></textarea>
+   <label>लिंक (वैकल्पिक: आदेश PDF, YouTube आदि)</label><input id="cL" type="url" placeholder="https://...">
+   <label>फ़ोटो या PDF (वैकल्पिक)</label><input id="cF" type="file" accept="image/*,application/pdf" onchange="cPick(this)"><div id="cFv" class="sub"></div>
+   <button class="btn" id="cBtn" onclick="saveC()">प्रकाशित करें</button><button class="btn g hide" id="cX" onclick="rstC()">रद्द करें</button><div class="msg" id="cMsg"></div></div>
+  <div class="box"><h2>प्रकाशित सामग्री <span id="cCnt" class="sub"></span></h2>
+   <div class="row"><select id="cfC" onchange="listC()"></select><input id="cfQ" placeholder="शब्द से खोजें" oninput="listC()"></div>
+   <div class="lst" id="cList"></div><div class="msg" id="cMsg2"></div></div>
+ </div>
+ <div id="pK" class="hide"><div class="box"><h2>शिक्षकों के संदेश <span id="kCnt" class="sub"></span></h2>
+   <select id="kF" onchange="loadK()"><option value="open">जवाब बाकी</option><option value="all">सभी</option></select>
+   <div class="lst" id="kList" style="max-height:520px"></div><div class="msg" id="kMsg"></div></div></div>
+
+ <div id="pP" class="hide">
+  <div class="box"><h2 id="mpH">नई मासिक पाठ योजना</h2>
+   <div class="row"><div><label>महीना</label><input id="mpM" type="month"></div><div><label>कक्षा</label><select id="mpC"></select></div></div>
+   <label>विषय</label><select id="mpS"></select><label>शीर्षक</label><input id="mpT" placeholder="जैसे: नवंबर की योजना, गणित">
+   <label>पूरी योजना</label><textarea id="mpB" style="min-height:200px"></textarea>
+   <button class="btn" id="mpBtn" onclick="saveMP()">प्रकाशित करें</button><button class="btn g hide" id="mpX" onclick="rstMP()">रद्द करें</button><div class="msg" id="mpMsg"></div></div>
+  <div class="box"><h2>तैयार योजनाएँ <span class="sub" id="mpCnt"></span></h2>
+   <div class="row"><input id="mfM" type="month" onchange="listMP()"><select id="mfC" onchange="listMP()"></select></div>
+   <div class="lst" id="mpList"></div><div class="msg" id="mpMsg2"></div></div>
+ </div>
+ <div id="pZ" class="hide">
+  <div class="box"><h2 id="zH">नया क्विज़</h2>
+   <label>शीर्षक</label><input id="zT"><div class="row"><div><label>कक्षा</label><select id="zC"></select></div><div><label>विषय</label><select id="zS"></select></div></div>
+   <div id="zQs"></div><button class="btn g" onclick="zAdd()">+ प्रश्न जोड़ें</button>
+   <label>स्थिति</label><select id="zSt"><option value="draft">मसौदा (सिर्फ़ मुझे दिखे)</option><option value="published">प्रकाशित (शिक्षक और बच्चे देख सकें)</option></select>
+   <button class="btn" id="zBtn" onclick="saveZ()">सहेजें</button><button class="btn g hide" id="zX" onclick="rstZ()">रद्द करें</button><div class="msg" id="zMsg"></div></div>
+  <div class="box"><h2>क्विज़ <span class="sub" id="zCnt"></span></h2><div class="lst" id="zList"></div><div class="msg" id="zMsg2"></div></div>
+ </div>
+
+ <div id="pS" class="hide"><div class="box"><h2>आँकड़े</h2><div class="row" id="stats"></div><div class="msg" id="sMsg"></div></div>
+  <div class="box"><h2>पिछले 30 दिन</h2><div id="sDaily"></div></div><div class="box"><h2>किसने कितनी सामग्री बनाई</h2><div id="sBy"></div></div>
+  <div class="box hide" id="sLog"><h2>एडमिन की गतिविधि (लेखा)</h2><div class="lst" id="sLogL"></div></div></div>
+</section>
+</main>
+<script>
+/* ====== यहाँ अपनी जानकारी भरिए ====== */
+var WORKER="";        /* Cloudflare Worker का पता (समाचार की फ़ोटो/PDF के लिए) */
+var TEACHER_SITE="";  /* शिक्षक वाली साइट का पता, जैसे https://aapki-site.netlify.app (क्विज़ का लिंक बनाने के लिए) */
+/* ==================================== */
+var SB="https://jsxqioaendqjdqdnqysc.supabase.co",KEY="sb_publishable_j2Sm4mC4iTf8_5JO6nQz7g_5p50EcVt",DOM="@shikshak-sathi.example.com";
+var $=function(i){return document.getElementById(i)};
+var S=null,me=null,pg=0,U={},M=[],coId="";
+var PERMS=[["content","प्रश्न बैंक और क्विज"],["news","समाचार, आदेश, सूचना"],["eco","इको क्लब"],["teachers","शिक्षक प्रबंधन और प्रीमियम"],["lesson","पाठ टीका तैयार करना"],["lesson_master","विषय और स्कूल मास्टर सूची"]];
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function P(k){return!!me&&(me.role==="superadmin"||(me.role==="coadmin"&&me.permissions&&me.permissions[k]===true))}
+function keep(){try{localStorage.setItem("ssa",JSON.stringify(S))}catch(e){}}
+async function api(path,o){
+ o=o||{};var h={apikey:KEY,"Content-Type":"application/json"};
+ if(o.auth!==false&&S){await fresh();h.Authorization="Bearer "+S.access_token}
+ if(o.headers)for(var k in o.headers)h[k]=o.headers[k];
+ var r=await fetch(SB+path,{method:o.method||"GET",headers:h,body:o.body?JSON.stringify(o.body):undefined}),t=await r.text(),j=null;
+ try{j=t?JSON.parse(t):null}catch(e){}
+ if(!r.ok)throw new Error((j&&(j.msg||j.message||j.error_description||j.error))||("त्रुटि "+r.status));
+ return j;
+}
+function setSess(j){S={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:j.expires_at||(Math.floor(Date.now()/1000)+(j.expires_in||3600)),uid:j.user.id};keep()}
+async function fresh(){if(S&&S.expires_at-60<Date.now()/1000){var j=await api("/auth/v1/token?grant_type=refresh_token",{method:"POST",auth:false,body:{refresh_token:S.refresh_token}});setSess(j)}}
+function nice(m){if(/invalid login/i.test(m))return"मोबाइल नंबर या पासवर्ड गलत है।";if(/Failed to fetch/i.test(m))return"इंटरनेट नहीं चल रहा।";if(/अनुमति|permission|row-level/i.test(m))return"इस काम की अनुमति आपके पास नहीं है।";return m}
+
+async function login(){
+ var m=$("lMob").value.trim(),pw=$("lPw").value,M_=$("lMsg");
+ if(!/^\d{10}$/.test(m)||!pw){M_.textContent="मोबाइल नंबर (10 अंक) और पासवर्ड भरिए।";return}
+ $("bL").disabled=true;M_.textContent="";
+ try{var j=await api("/auth/v1/token?grant_type=password",{method:"POST",auth:false,body:{email:m+DOM,password:pw}});setSess(j);await afterPw()}
+ catch(e){M_.textContent=nice(e.message)}
+ $("bL").disabled=false;
+}
+function logout(){S=null;me=null;try{localStorage.removeItem("ssa")}catch(e){}$("app").classList.add("hide");$("auth").classList.remove("hide");$("lPw").value=""}
+async function enter(){
+ var p=await api("/rest/v1/profiles?select=*&id=eq."+S.uid);me=p&&p[0];
+ if(!me||me.is_blocked||(me.role!=="superadmin"&&me.role!=="coadmin")){logout();$("lMsg").textContent="यह खाता एडमिन नहीं है। शिक्षक का पोर्टल अलग वेब पते पर है।";return}
+ $("auth").classList.add("hide");$("app").classList.remove("hide");
+ $("uName").textContent=me.full_name;$("uRole").textContent=me.role==="superadmin"?"सुपर एडमिन":"को-एडमिन";
+ var t=[];if(P("teachers"))t.push(["T","शिक्षक"]);if(P("lesson"))t.push(["L","पाठ टीका"]);if(P("content"))t.push(["Q","प्रश्न पत्र"]);if(P("news")||P("eco"))t.push(["C","समाचार और सूचना"]);if(P("teachers"))t.push(["K","संदेश"]);if(P("lesson"))t.push(["P","मासिक योजना"]);if(P("content"))t.push(["Z","क्विज़"]);if(P("lesson_master"))t.push(["M","मास्टर सूची"]);if(P("teachers"))t.push(["S","आँकड़े"]);
+ $("tabs").innerHTML=t.map(function(x){return'<button id="t'+x[0]+'" onclick="tab(\''+x[0]+'\')">'+x[1]+'</button>'}).join("");
+ if(!t.length){$("tabs").innerHTML='<div class="sub">आपको अभी कोई अधिकार नहीं मिला है। सुपर एडमिन से कहिए।</div>';return}
+ tab(t[0][0]);
+}
+function tab(w){
+ ["T","L","Q","C","K","P","Z","M","S"].forEach(function(k){var b=$("t"+k);if(b)b.classList.toggle("on",k===w);$("p"+k).classList.toggle("hide",k!==w)});
+ if(w==="T"){pg=0;loadU()}if(w==="L")loadL();if(w==="Q")loadQ();if(w==="C")loadC();if(w==="K")loadK();if(w==="P")loadP();if(w==="Z")loadZ();if(w==="M")loadM();if(w==="S")loadS();
+}
+
+/* शिक्षक प्रबंधन */
+function okPrem(u){return u.is_premium&&(!u.premium_until||u.premium_until>=new Date().toISOString().slice(0,10))}
+async function loadU(){
+ var q=$("uQ").value.trim().replace(/[,()*%]/g,""),url="/rest/v1/profiles?select=id,mobile,full_name,school,block,district,role,permissions,is_premium,premium_until,is_blocked&order=created_at.desc&limit=26&offset="+(pg*25);
+ if(q)url+="&or="+encodeURIComponent("(full_name.ilike.*"+q+"*,school.ilike.*"+q+"*,mobile.like.*"+q+"*)");
+ try{
+  var l=await api(url),more=l.length>25;l=l.slice(0,25);U={};
+  $("uList").innerHTML=l.length?l.map(function(u){U[u.id]=u;var rl=u.role==="superadmin"?'<span class="chip c-s">सुपर एडमिन</span>':u.role==="coadmin"?'<span class="chip c-c">को-एडमिन</span>':'';
+   var mine=u.id===S.uid,sa=u.role==="superadmin";
+   return'<div class="item"><b>'+esc(u.full_name)+'</b> '+rl+(okPrem(u)?'<span class="chip c-p">प्रीमियम'+(u.premium_until?' · '+u.premium_until:'')+'</span>':'')+(u.is_blocked?'<span class="chip c-b">रुका हुआ</span>':'')+
+   '<div class="sub" style="margin:0">'+esc(u.mobile)+' | '+esc(u.school||"")+', '+esc(u.block||"")+'</div><div>'+
+   '<button class="btn g s" onclick="prm(\''+u.id+'\')">'+(okPrem(u)?'प्रीमियम बंद':'प्रीमियम चालू')+'</button>'+
+   (sa||mine?'':'<button class="btn d s" onclick="blk(\''+u.id+'\')">'+(u.is_blocked?'खोलें':'रोकें')+'</button>')+
+   (!sa&&!mine?'<button class="btn g s" onclick="rsPw(\''+u.id+'\')">पासवर्ड रीसेट</button>':'')+(me.role==="superadmin"&&!sa?'<button class="btn g s" onclick="co(\''+u.id+'\')">को-एडमिन अधिकार</button>':'')+'</div></div>'}).join(""):'<div class="sub" style="padding:12px">कोई शिक्षक नहीं मिला।</div>';
+  $("uCnt").textContent="(इस पेज पर "+l.length+")";$("pgN").textContent="पेज "+(pg+1);$("nx").disabled=!more;$("uMsg").textContent="";
+ }catch(e){$("uMsg").textContent=nice(e.message)}
+}
+async function rpc(n,b){return api("/rest/v1/rpc/"+n,{method:"POST",body:b})}
+async function prm(id){
+ var u=U[id],on=!okPrem(u),d=null;
+ if(on){var t=prompt("प्रीमियम किस तारीख़ तक? साल-महीना-दिन लिखिए, जैसे 2027-03-31। बिना अंतिम तारीख़ के चालू करने के लिए खाली छोड़िए।","");if(t===null)return;t=t.trim();if(t){if(!/^\d{4}-\d{2}-\d{2}$/.test(t)){$("uMsg").textContent="तारीख़ ऐसे लिखिए: 2027-03-31";return}d=t}}
+ try{await rpc("set_premium",{target:id,p_on:on,p_until:d});loadU()}catch(e){$("uMsg").textContent=nice(e.message)}
+}
+async function blk(id){try{await rpc("set_blocked",{target:id,p_block:!U[id].is_blocked,p_reason:null});loadU()}catch(e){$("uMsg").textContent=nice(e.message)}}
+function co(id){
+ coId=id;var u=U[id],pm=u.permissions||{};$("coH").textContent="को-एडमिन अधिकार: "+u.full_name+(u.role==="coadmin"?" (अभी को-एडमिन)":"");
+ $("coChk").innerHTML=PERMS.map(function(p){return'<label class="pw" style="font-size:15px;color:var(--ink)"><input type="checkbox" id="pm_'+p[0]+'"'+(pm[p[0]]===true?' checked':'')+'> '+p[1]+'</label>'}).join("");
+ $("coMsg").textContent="";$("coBox").classList.remove("hide");$("coBox").scrollIntoView({behavior:"smooth"});
+}
+async function coSave(){
+ var pm={};PERMS.forEach(function(p){pm[p[0]]=$("pm_"+p[0]).checked});
+ try{await rpc("set_role",{target:coId,new_role:"coadmin",perms:pm});$("coMsg").className="msg ok";$("coMsg").textContent="सहेज लिया गया।";loadU()}catch(e){$("coMsg").className="msg";$("coMsg").textContent=nice(e.message)}
+}
+async function coDel(){try{await rpc("set_role",{target:coId,new_role:"teacher",perms:{}});$("coBox").classList.add("hide");loadU()}catch(e){$("coMsg").textContent=nice(e.message)}}
+
+/* मास्टर सूची */
+var NEED={district:[],subject:[],block:["D"],panchayat:["D","B"],school:["D","B","P"]};
+async function loadM(){
+ try{M=await api("/rest/v1/master_config?select=id,category,item_name,parent_id&order=sort.asc,item_name.asc&limit=5000");mChg()}
+ catch(e){$("mMsg").textContent=nice(e.message)}
+}
+function kids(c,p){return M.filter(function(x){return x.category===c&&(p==null||x.parent_id===p)})}
+function fill(id,c,p,ph){$(id).innerHTML="<option value=''>"+ph+"</option>"+kids(c,p).map(function(x){return"<option value='"+x.id+"'>"+esc(x.item_name)+"</option>"}).join("")}
+function mChg(){
+ var n=NEED[$("mCat").value];["D","B","P"].forEach(function(k){$("w"+k).classList.toggle("hide",n.indexOf(k)<0)});
+ fill("mD","district",null,"जिला चुनें");mChain(1);
+}
+function mChain(l){
+ if(l<=1)fill("mB","block",+$("mD").value||-1,"प्रखंड चुनें");
+ if(l<=2)fill("mP","panchayat",+$("mB").value||-1,"पंचायत चुनें");
+ showM();
+}
+function parentId(){var c=$("mCat").value;return c==="block"?+$("mD").value:c==="panchayat"?+$("mB").value:c==="school"?+$("mP").value:null}
+function showM(){
+ var c=$("mCat").value,p=parentId(),l=(c==="subject"||c==="district")?kids(c,null):(p?kids(c,p):[]);
+ $("mCnt").textContent="("+l.length+")";
+ $("mList").innerHTML=l.length?l.map(function(x){return'<div class="item" style="display:flex;justify-content:space-between;gap:8px;align-items:center">'+esc(x.item_name)+'<button class="btn d s" onclick="mDel('+x.id+')">हटाएँ</button></div>'}).join(""):'<div class="sub" style="padding:12px">ऊपर चुनी हुई जगह के नीचे अभी कुछ नहीं है।</div>';
+}
+async function mAdd(){
+ var c=$("mCat").value,p=parentId(),m=$("mMsg"),names=$("mNames").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);
+ m.className="msg";
+ if(NEED[c].length&&!p){m.textContent="पहले ऊपर के खाने चुनिए।";return}
+ if(!names.length){m.textContent="कम से कम एक नाम लिखिए।";return}
+ $("mBtn").disabled=true;
+ try{
+  for(var i=0;i<names.length;i+=200)await api("/rest/v1/master_config",{method:"POST",headers:{Prefer:"return=minimal"},body:names.slice(i,i+200).map(function(n){return{category:c,item_name:n,parent_id:p}})});
+  $("mNames").value="";m.className="msg ok";m.textContent=names.length+" नाम जुड़ गए।";await loadM();
+ }catch(e){m.textContent=nice(e.message)}
+ $("mBtn").disabled=false;
+}
+async function mDel(id){
+ if(!confirm("हटाने पर इसके नीचे की सारी सूची भी हट जाएगी। हटाएँ?"))return;
+ try{await api("/rest/v1/master_config?id=eq."+id,{method:"DELETE"});await loadM()}catch(e){$("mMsg").textContent=nice(e.message)}
+}
+
+/* आँकड़े */
+async function loadS(){
+ try{
+  var r=await rpc("analytics_summary",{}),L=[["शिक्षक","teachers"],["प्रीमियम","premium"],["आज सक्रिय","active_today"],["7 दिन में सक्रिय","active_7d"],["इंस्टॉल","installs"],["30 दिन के विज़िट","visits_30d"],["कुल पाठ टीका","tika_total"],["प्रश्न पत्र प्रिंट","papers_printed"],["रुके खाते","blocked"],["GPS फ़ोटो (कुल)","gps_total"],["GPS फ़ोटो (आज)","gps_today"]];
+  try{var g=await api("/rest/v1/gps_counts?select=day,n&limit=2000"),tt=0,t0=0;g.forEach(function(x){tt+=x.n;if(x.day===td())t0=x.n});r.gps_total=tt;r.gps_today=t0}catch(e){r.gps_total="—";r.gps_today="—"}
+  $("stats").innerHTML=L.map(function(x){return'<div class="stat"><b>'+esc(r[x[1]])+'</b>'+x[0]+'</div>'}).join("");$("sMsg").textContent="";
+  var dl=r.daily||[],mx=Math.max.apply(null,dl.map(function(x){return x.events}).concat([1]));
+  $("sDaily").innerHTML=dl.length?dl.map(function(x){return'<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin:3px 0"><span style="width:56px">'+x.day.slice(5).split("-").reverse().join("/")+'</span><div style="background:var(--pri);height:12px;border-radius:6px;width:'+Math.max(3,Math.round(x.events/mx*70))+'%"></div><span>'+x.users+' लोग</span></div>'}).join(""):'<div class="sub">अभी आँकड़े नहीं हैं।</div>';
+  $("sBy").innerHTML=(r.by_creator||[]).length?r.by_creator.map(function(x){return'<div class="item">'+esc(x.name)+' — '+x.content+' सामग्री</div>'}).join(""):'<div class="sub">अभी कोई सामग्री नहीं।</div>';
+  if(me.role==="superadmin"){$("sLog").classList.remove("hide");loadLog()}
+ }catch(e){$("sMsg").textContent=nice(e.message)}
+}
+/* पाठ टीका तैयार करना */
+var lpEdit=0,SUBJ=[],LD={};
+function td(){return new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Kolkata"})}
+function so(a,ph){return(ph?"<option value=''>"+ph+"</option>":"")+a.map(function(x){return"<option>"+esc(x)+"</option>"}).join("")}
+async function loadL(){
+ if(!SUBJ.length){try{SUBJ=(await api("/rest/v1/master_config?select=item_name&category=eq.subject&is_active=eq.true&order=sort.asc")).map(function(x){return x.item_name})}catch(e){}if(!SUBJ.length)SUBJ=["हिंदी","गणित","अंग्रेज़ी","पर्यावरण","विज्ञान","संस्कृत","उर्दू"]}
+ var c=["1","2","3","4","5","6","7","8"];
+ $("lCls").innerHTML=so(c);$("lSub").innerHTML=so(SUBJ);$("lfC").innerHTML=so(c,"सभी वर्ग");$("lfS").innerHTML=so(SUBJ,"सभी विषय");
+ if(!$("lDate").value)$("lDate").value=td();listL();
+}
+function rstL(){lpEdit=0;$("lCh").value="";$("lNote").value="";$("lH").textContent="नया पाठ टीका";$("lBtn").textContent="प्रकाशित करें";$("lCan").classList.add("hide")}
+async function saveL(){
+ var o={plan_date:$("lDate").value,class_name:+$("lCls").value,subject:$("lSub").value,chapter:$("lCh").value.trim(),summary:$("lNote").value.trim()},m=$("lMsg2");m.className="msg";
+ if(!o.plan_date||!o.chapter||!o.summary){m.textContent="दिनांक, पाठ का नाम और टिप्पणी भरिए।";return}
+ $("lBtn").disabled=true;
+ try{
+  if(lpEdit)await api("/rest/v1/lesson_plans?id=eq."+lpEdit,{method:"PATCH",body:o});
+  else await api("/rest/v1/lesson_plans",{method:"POST",headers:{Prefer:"return=minimal"},body:o});
+  var w=lpEdit;rstL();m.className="msg ok";m.textContent=w?"बदलाव सहेज लिया गया।":"प्रकाशित हो गया।";listL();
+ }catch(e){m.textContent=nice(e.message)}
+ $("lBtn").disabled=false;
+}
+async function listL(){
+ var u="/rest/v1/lesson_plans?select=*&order=plan_date.desc,class_name.asc&limit=100",d=$("lfD").value,c=$("lfC").value,s=$("lfS").value,q=$("lfQ").value.trim().replace(/[,()*%]/g,"");
+ if(d)u+="&plan_date=eq."+d;if(c)u+="&class_name=eq."+c;if(s)u+="&subject=eq."+encodeURIComponent(s);
+ if(q)u+="&or="+encodeURIComponent("(chapter.ilike.*"+q+"*,summary.ilike.*"+q+"*)");
+ try{
+  var l=await api(u);LD={};$("lCnt").textContent="("+l.length+")";
+  $("lList").innerHTML=l.length?l.map(function(x){LD[x.id]=x;return'<div class="item"><span class="chip c-c">'+x.plan_date.split("-").reverse().join("/")+'</span><span class="chip c-p">कक्षा '+x.class_name+'</span><span class="chip c-s">'+esc(x.subject)+'</span><b style="display:block">'+esc(x.chapter)+'</b><div class="sub" style="white-space:pre-wrap;margin:2px 0">'+esc(x.summary)+'</div><button class="btn g s" onclick="edL('+x.id+')">एडिट</button><button class="btn d s" onclick="dlL('+x.id+')">हटाएँ</button></div>'}).join(""):'<div class="sub" style="padding:12px">कोई पाठ टीका नहीं मिला।</div>';
+  $("lMsg3").textContent="";
+ }catch(e){$("lMsg3").textContent=nice(e.message)}
+}
+function edL(id){var x=LD[id];lpEdit=id;$("lDate").value=x.plan_date;$("lCls").value=x.class_name;$("lSub").value=x.subject;$("lCh").value=x.chapter;$("lNote").value=x.summary;$("lH").textContent="पाठ टीका में बदलाव";$("lBtn").textContent="बदलाव सहेजें";$("lCan").classList.remove("hide");$("lH").scrollIntoView({behavior:"smooth"})}
+async function dlL(id){if(!confirm("यह पाठ टीका हटाएँ? शिक्षकों की सहेजी सूची से भी हट जाएगा।"))return;try{await api("/rest/v1/lesson_plans?id=eq."+id,{method:"DELETE"});listL()}catch(e){$("lMsg3").textContent=nice(e.message)}}
+/* पासवर्ड बदलना */
+async function changePw(){
+ var a=$("pw0").value,b=$("pw1").value,c=$("pw2").value,m=$("pwM");m.className="msg";
+ if(!a||!b){m.textContent="सभी खाने भरिए।";return}
+ if(b.length<8){m.textContent="नया पासवर्ड कम से कम 8 अक्षर का हो।";return}
+ if(b!==c){m.textContent="नए पासवर्ड दोनों बार एक जैसे नहीं हैं।";return}
+ if(b===a){m.textContent="नया पासवर्ड पुराने से अलग रखिए।";return}
+ $("pwB").disabled=true;
+ try{
+  var j=await api("/auth/v1/token?grant_type=password",{method:"POST",auth:false,body:{email:me.mobile+DOM,password:a}});setSess(j);
+  await api("/auth/v1/user",{method:"PUT",body:{password:b}});
+  ["pw0","pw1","pw2"].forEach(function(i){$(i).value=""});m.className="msg ok";m.textContent="पासवर्ड बदल गया। अगली बार नए पासवर्ड से लॉगिन कीजिए।";
+ }catch(e){m.textContent=/invalid login/i.test(e.message)?"अभी का पासवर्ड गलत है।":nice(e.message)}
+ $("pwB").disabled=false;
+}
+/* A4 प्रश्न पत्र: ऊपर 20% विवरण, नीचे 80% लिखने की जगह */
+function sheetHtml(p,m){
+ var d=m.date?m.date.split("-").reverse().join("/"):"";
+ return'<div class="wm">'+esc(m.school||"शिक्षक साथी")+'</div><div class="in"><div class="hd"><h3>'+esc(m.school||"विद्यालय का नाम")+'</h3><div class="sub2">'+esc(p.exam_type)+' प्रश्न पत्र</div><div class="meta"><div>शिक्षक: '+esc(m.teacher||"........")+'</div><div>दिनांक: '+esc(d)+'</div><div>कक्षा: '+esc(p.class_name)+'</div><div>विषय: '+esc(p.subject)+'</div><div>पूर्णांक: '+esc(p.marks||"")+'</div></div><div>नाम: ______________________ &nbsp; रोल नं.: ______</div></div><div class="bd"><h4 style="text-align:center;margin:8px 0 0">'+esc(p.title)+'</h4><ol>'+(p.questions||[]).map(function(q){return"<li>"+esc(q)+"</li>"}).join("")+'</ol></div></div>';
+}
+/* प्रश्न पत्र: मसौदा → प्रकाशित → संग्रह */
+var qEdit=0,QD={},MONQ=["जनवरी","फ़रवरी","मार्च","अप्रैल","मई","जून","जुलाई","अगस्त","सितंबर","अक्टूबर","नवंबर","दिसंबर"];
+async function loadQ(){
+ if(!SUBJ.length){try{SUBJ=(await api("/rest/v1/master_config?select=item_name&category=eq.subject&is_active=eq.true&order=sort.asc")).map(function(x){return x.item_name})}catch(e){}if(!SUBJ.length)SUBJ=["हिंदी","गणित","अंग्रेज़ी","पर्यावरण","विज्ञान","संस्कृत","उर्दू"]}
+ var c=["1","2","3","4","5","6","7","8"];
+ $("qC").innerHTML=so(c);$("qS").innerHTML=so(SUBJ);$("qfC").innerHTML=so(c,"सभी वर्ग");$("qfS").innerHTML=so(SUBJ,"सभी विषय");
+ $("qMo").innerHTML=MONQ.map(function(m,i){return"<option value='"+(i+1)+"'>"+m+"</option>"}).join("");$("qMo").value=new Date().getMonth()+1;
+ listQ();
+}
+function formQ(){return{title:$("qT").value.trim(),exam_type:$("qE").value,class_name:+$("qC").value,subject:$("qS").value,marks:+$("qM").value||null,month:+$("qMo").value,questions:$("qQ").value.split("\n").map(function(x){return x.trim()}).filter(Boolean),change_note:$("qN").value.trim()||null}}
+function rstQ(){qEdit=0;$("qT").value="";$("qQ").value="";$("qN").value="";$("qH").textContent="नया प्रश्न पत्र";$("qB").textContent="मसौदा सहेजें";$("qX").classList.add("hide")}
+function prevForm(){var p=formQ();if(!p.questions.length){$("qMsg").className="msg";$("qMsg").textContent="पूर्वावलोकन के लिए कम से कम एक प्रश्न लिखिए।";return}showQ(p)}
+function showQ(p){$("qSheet").innerHTML=sheetHtml(p,{school:"आपके विद्यालय का नाम",teacher:"शिक्षक का नाम",date:td(),bell:"1"});$("qPv").classList.remove("hide");$("qPv").scrollIntoView({behavior:"smooth"})}
+async function saveQ(){
+ var o=formQ(),m=$("qMsg");m.className="msg";
+ if(!o.title||!o.questions.length){m.textContent="शीर्षक और कम से कम एक प्रश्न भरिए।";return}
+ $("qB").disabled=true;
+ try{
+  if(qEdit)await api("/rest/v1/question_papers?id=eq."+qEdit,{method:"PATCH",body:o});
+  else await api("/rest/v1/question_papers",{method:"POST",headers:{Prefer:"return=minimal"},body:o});
+  var w=qEdit;rstQ();m.className="msg ok";m.textContent=(w?"बदलाव":"मसौदा")+" सहेज लिया गया। शिक्षकों को तब दिखेगा जब आप नीचे सूची से प्रकाशित करेंगे।";listQ();
+ }catch(e){m.textContent=nice(e.message)}
+ $("qB").disabled=false;
+}
+async function listQ(){
+ var u="/rest/v1/question_papers?select=*&order=created_at.desc&limit=100",st=$("qfSt").value,c=$("qfC").value,s=$("qfS").value,q=$("qfQ").value.trim().replace(/[,()*%]/g,"");
+ if(st)u+="&status=eq."+st;if(c)u+="&class_name=eq."+c;if(s)u+="&subject=eq."+encodeURIComponent(s);if(q)u+="&title=ilike."+encodeURIComponent("*"+q+"*");
+ try{
+  var l=await api(u);QD={};$("qCnt").textContent="("+l.length+")";
+  $("qList").innerHTML=l.length?l.map(function(x){QD[x.id]=x;
+   var stt=x.status==="draft"?'<span class="chip">मसौदा</span>':x.status==="published"?'<span class="chip c-c">प्रकाशित</span>':'<span class="chip c-p">संग्रह</span>',
+   b='<button class="btn g s" onclick="pvQ('+x.id+')">पूर्वावलोकन</button>';
+   if(x.status==="draft")b+='<button class="btn g s" onclick="edQ('+x.id+')">एडिट</button><button class="btn s" onclick="pubQ('+x.id+')">प्रकाशित करें</button><button class="btn d s" onclick="delQ('+x.id+')">हटाएँ</button>';
+   else{b+='<button class="btn g s" onclick="nvQ('+x.id+')">नया संस्करण बनाएँ</button>';if(x.status==="published")b+='<button class="btn d s" onclick="arQ('+x.id+')">संग्रह में भेजें</button>'}
+   return'<div class="item">'+stt+'<span class="chip c-s">'+esc(x.exam_type)+'</span><span class="chip c-p">कक्षा '+x.class_name+'</span><span class="chip c-c">'+esc(x.subject)+'</span><span class="chip">v'+x.version+'</span><b style="display:block">'+esc(x.title)+'</b>'+(x.change_note?'<div class="sub" style="margin:0">बदलाव: '+esc(x.change_note)+'</div>':'')+'<div>'+b+'</div></div>'}).join(""):'<div class="sub" style="padding:12px">कोई प्रश्न पत्र नहीं मिला।</div>';
+  $("qMsg2").textContent="";
+ }catch(e){$("qMsg2").textContent=nice(e.message)}
+}
+function pvQ(id){showQ(QD[id])}
+function edQ(id){
+ var x=QD[id];if(!x)return;qEdit=id;$("qT").value=x.title;$("qE").value=x.exam_type;$("qC").value=x.class_name;$("qS").value=x.subject;$("qM").value=x.marks||"";$("qMo").value=x.month||1;$("qQ").value=(x.questions||[]).join("\n");$("qN").value=x.change_note||"";
+ $("qH").textContent="मसौदे में बदलाव (संस्करण "+x.version+")";$("qB").textContent="बदलाव सहेजें";$("qX").classList.remove("hide");$("qH").scrollIntoView({behavior:"smooth"});
+}
+async function pubQ(id){
+ if(!confirm("प्रकाशित करने पर यह शिक्षकों को दिखने लगेगा, और इसका पुराना प्रकाशित संस्करण (अगर है) संग्रह में चला जाएगा। प्रकाशित करें?"))return;
+ try{await rpc("publish_paper",{p_id:id});listQ()}catch(e){$("qMsg2").textContent=nice(e.message)}
+}
+async function nvQ(id){try{var n=await rpc("new_paper_version",{p_id:id});await listQ();edQ(n)}catch(e){$("qMsg2").textContent=nice(e.message)}}
+async function arQ(id){if(!confirm("संग्रह में भेजने पर यह शिक्षकों को नहीं दिखेगा। भेजें?"))return;try{await rpc("archive_paper",{p_id:id});listQ()}catch(e){$("qMsg2").textContent=nice(e.message)}}
+async function delQ(id){if(!confirm("यह मसौदा हटाएँ?"))return;try{await api("/rest/v1/question_papers?id=eq."+id,{method:"DELETE"});if(qEdit===id)rstQ();listQ()}catch(e){$("qMsg2").textContent=nice(e.message)}}
+/* समाचार, आदेश, इको क्लब, सूचना */
+var CATS=[],cEdit=0,CD={};
+async function loadC(){
+ CATS=await api("/rest/v1/content_categories?select=*&order=id");
+ var mine=CATS.filter(function(c){return P(c.perm)});
+ $("cCat").innerHTML=mine.map(function(c){return"<option value='"+c.id+"'>"+esc(c.name)+"</option>"}).join("");
+ $("cfC").innerHTML="<option value=''>सभी श्रेणी</option>"+mine.map(function(c){return"<option value='"+c.id+"'>"+esc(c.name)+"</option>"}).join("");
+ if(!$("cDate").value)$("cDate").value=td();listC();
+}
+async function addCat(){
+ var n=$("cNewN").value.trim(),m=$("cMsg");m.className="msg";if(!n)return;
+ try{await rpc("add_category",{p_name:n,p_perm:"news"});$("cNewN").value="";$("cNew").classList.add("hide");await loadC();m.className="msg ok";m.textContent="नई श्रेणी जुड़ गई: "+n}catch(e){m.textContent=nice(e.message)}
+}
+function rstC(){cEdit=0;cImg="";$("cFv").textContent="";$("cT").value="";$("cB").value="";$("cL").value="";$("cH").textContent="नई सामग्री";$("cBtn").textContent="प्रकाशित करें";$("cX").classList.add("hide")}
+async function saveC(){
+ var l=$("cL").value.trim(),o={category_id:+$("cCat").value,title:$("cT").value.trim(),body:$("cB").value.trim(),link:l||null,image_path:cImg||null,publish_date:$("cDate").value||td()},m=$("cMsg");m.className="msg";
+ if(!o.category_id||!o.title||!o.body){m.textContent="श्रेणी, शीर्षक और विवरण भरिए।";return}
+ if(l&&!/^https?:\/\//i.test(l)){m.textContent="लिंक http:// या https:// से शुरू हो।";return}
+ $("cBtn").disabled=true;
+ try{
+  if(cEdit)await api("/rest/v1/content?id=eq."+cEdit,{method:"PATCH",body:o});else await api("/rest/v1/content",{method:"POST",headers:{Prefer:"return=minimal"},body:o});
+  var w=cEdit;rstC();m.className="msg ok";m.textContent=w?"बदलाव सहेज लिया गया।":"प्रकाशित हो गया। "+o.publish_date+" को शिक्षकों को दिखेगा।";listC();
+ }catch(e){m.textContent=nice(e.message)}
+ $("cBtn").disabled=false;
+}
+async function listC(){
+ var u="/rest/v1/content?select=*&order=publish_date.desc,id.desc&limit=100",c=$("cfC").value,q=$("cfQ").value.trim().replace(/[,()*%]/g,"");
+ if(c)u+="&category_id=eq."+c;if(q)u+="&or="+encodeURIComponent("(title.ilike.*"+q+"*,body.ilike.*"+q+"*)");
+ try{
+  var l=await api(u),cn={};CATS.forEach(function(x){cn[x.id]=x.name});CD={};$("cCnt").textContent="("+l.length+")";
+  $("cList").innerHTML=l.length?l.map(function(x){CD[x.id]=x;return'<div class="item"><span class="chip c-c">'+esc(cn[x.category_id]||"")+'</span><span class="chip">'+x.publish_date.split("-").reverse().join("/")+'</span><b style="display:block">'+esc(x.title)+'</b><div><button class="btn g s" onclick="edC('+x.id+')">एडिट</button><button class="btn d s" onclick="dlC('+x.id+')">हटाएँ</button></div></div>'}).join(""):'<div class="sub" style="padding:12px">कोई सामग्री नहीं मिली।</div>';
+  $("cMsg2").textContent="";
+ }catch(e){$("cMsg2").textContent=nice(e.message)}
+}
+function edC(id){var x=CD[id];cEdit=id;$("cCat").value=x.category_id;$("cDate").value=x.publish_date;$("cT").value=x.title;$("cB").value=x.body;$("cL").value=x.link||"";cImg=x.image_path||"";$("cFv").textContent=cImg?"फ़ाइल जुड़ी है":"";$("cH").textContent="सामग्री में बदलाव";$("cBtn").textContent="बदलाव सहेजें";$("cX").classList.remove("hide");$("cH").scrollIntoView({behavior:"smooth"})}
+async function dlC(id){if(!confirm("यह सामग्री हटाएँ?"))return;try{await api("/rest/v1/content?id=eq."+id,{method:"DELETE"});if(cEdit===id)rstC();listC()}catch(e){$("cMsg2").textContent=nice(e.message)}}
+
+/* शिक्षकों के संदेश और एडमिन के जवाब */
+var KD={};
+async function loadK(){
+ var u="/rest/v1/teacher_comments?select=*,profiles!teacher_id(full_name,school,mobile)&order=created_at.desc&limit=100";
+ if($("kF").value==="open")u+="&reply=is.null";
+ try{
+  var l=await api(u);KD={};$("kCnt").textContent="("+l.length+")";
+  $("kList").innerHTML=l.length?l.map(function(x){KD[x.id]=x;var t=x.profiles||{};
+   return'<div class="item"><b>'+esc(t.full_name||"")+'</b> <span class="sub">'+esc(t.school||"")+' · '+esc(t.mobile||"")+'</span><div><span class="chip c-s">'+esc(x.kind)+'</span><span class="chip">'+String(x.created_at).slice(0,10).split("-").reverse().join("/")+'</span></div><div class="sub" style="white-space:pre-wrap;color:var(--ink)">'+esc(x.body)+'</div>'+
+   (x.reply?'<div class="sub" style="white-space:pre-wrap;border-left:3px solid var(--pri);padding-left:8px"><b>आपका जवाब:</b><br>'+esc(x.reply)+'</div>':'<textarea id="rp'+x.id+'" placeholder="जवाब लिखिए (ज़रूरी नहीं)" style="min-height:70px"></textarea><button class="btn s" onclick="rpK('+x.id+')">जवाब भेजें</button>')+'</div>'}).join(""):'<div class="sub" style="padding:12px">कोई संदेश नहीं।</div>';
+  $("kMsg").textContent="";
+ }catch(e){$("kMsg").textContent=nice(e.message)}
+}
+async function rpK(id){
+ var t=$("rp"+id).value.trim();if(!t)return;
+ try{await api("/rest/v1/teacher_comments?id=eq."+id,{method:"PATCH",body:{reply:t,replied_by:S.uid,replied_at:new Date().toISOString()}});loadK()}catch(e){$("kMsg").textContent=nice(e.message)}
+}
+/* ---- फ़ाइल R2 (Cloudflare Worker) से ---- */
+var cImg="";
+function shrink(file,max,q){return new Promise(function(ok,no){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){var k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):no(new Error("फ़ोटो तैयार नहीं हुई"))},"image/jpeg",q)};im.onerror=function(){no(new Error("यह फ़ोटो खुल नहीं सकी"))};im.src=u})}
+async function upBlob(b,type,folder){
+ if(!WORKER)throw new Error("फ़ोटो/PDF रखने की जगह (R2) अभी जुड़ी नहीं है।");await fresh();
+ var r=await fetch(WORKER+"/upload?folder="+encodeURIComponent(folder),{method:"POST",headers:{Authorization:"Bearer "+S.access_token,"Content-Type":type},body:b}),j=await r.json().catch(function(){return{}});
+ if(!r.ok)throw new Error(j.error||"अपलोड नहीं हुआ");return j.url;
+}
+async function cPick(inp){
+ var f=inp.files&&inp.files[0],m=$("cMsg");m.className="msg";if(!f)return;
+ var c=CATS.filter(function(x){return String(x.id)===$("cCat").value})[0],folder=c?c.perm:"news";
+ try{m.textContent="अपलोड हो रहा है...";cImg=f.type==="application/pdf"?await upBlob(f,"application/pdf",folder):await upBlob(await shrink(f,1280,0.75),"image/jpeg",folder);$("cFv").textContent="फ़ाइल जुड़ गई ✓";m.textContent=""}
+ catch(e){m.textContent=nice(e.message)}
+ inp.value="";
+}
+/* ---- मासिक पाठ योजना ---- */
+var mpEdit=0,MP={};
+async function loadP(){
+ if(!SUBJ.length){try{SUBJ=(await api("/rest/v1/master_config?select=item_name&category=eq.subject&is_active=eq.true&order=sort.asc")).map(function(x){return x.item_name})}catch(e){}if(!SUBJ.length)SUBJ=["हिंदी","गणित","अंग्रेज़ी","पर्यावरण","विज्ञान","संस्कृत","उर्दू"]}
+ var c=["1","2","3","4","5","6","7","8"];$("mpC").innerHTML=so(c);$("mpS").innerHTML=so(SUBJ);$("mfC").innerHTML=so(c,"सभी वर्ग");
+ if(!$("mpM").value)$("mpM").value=td().slice(0,7);if(!$("mfM").value)$("mfM").value=td().slice(0,7);listMP();
+}
+function rstMP(){mpEdit=0;$("mpT").value="";$("mpB").value="";$("mpH").textContent="नई मासिक पाठ योजना";$("mpBtn").textContent="प्रकाशित करें";$("mpX").classList.add("hide")}
+async function saveMP(){
+ var o={plan_month:$("mpM").value+"-01",class_name:+$("mpC").value,subject:$("mpS").value,title:$("mpT").value.trim(),content:$("mpB").value.trim()},m=$("mpMsg");m.className="msg";
+ if(!$("mpM").value||!o.title||!o.content){m.textContent="महीना, शीर्षक और योजना भरिए।";return}
+ $("mpBtn").disabled=true;
+ try{if(mpEdit)await api("/rest/v1/monthly_plans?id=eq."+mpEdit,{method:"PATCH",body:o});else await api("/rest/v1/monthly_plans",{method:"POST",headers:{Prefer:"return=minimal"},body:o});var w=mpEdit;rstMP();m.className="msg ok";m.textContent=w?"बदलाव सहेज लिया गया।":"प्रकाशित हो गया।";listMP()}
+ catch(e){m.textContent=nice(e.message)}
+ $("mpBtn").disabled=false;
+}
+async function listMP(){
+ var u="/rest/v1/monthly_plans?select=*&order=plan_month.desc,class_name.asc&limit=100",m=$("mfM").value,c=$("mfC").value;
+ if(m)u+="&plan_month=eq."+m+"-01";if(c)u+="&class_name=eq."+c;
+ try{
+  var l=await api(u);MP={};$("mpCnt").textContent="("+l.length+")";
+  $("mpList").innerHTML=l.length?l.map(function(x){MP[x.id]=x;return'<div class="item"><span class="chip c-c">'+x.plan_month.slice(0,7)+'</span><span class="chip c-p">कक्षा '+x.class_name+'</span><span class="chip c-s">'+esc(x.subject)+'</span><b style="display:block">'+esc(x.title)+'</b><div><button class="btn g s" onclick="edMP('+x.id+')">एडिट</button><button class="btn d s" onclick="dlMP('+x.id+')">हटाएँ</button></div></div>'}).join(""):'<div class="sub" style="padding:12px">कोई योजना नहीं मिली।</div>';
+  $("mpMsg2").textContent="";
+ }catch(e){$("mpMsg2").textContent=nice(e.message)}
+}
+function edMP(id){var x=MP[id];mpEdit=id;$("mpM").value=x.plan_month.slice(0,7);$("mpC").value=x.class_name;$("mpS").value=x.subject;$("mpT").value=x.title;$("mpB").value=x.content;$("mpH").textContent="योजना में बदलाव";$("mpBtn").textContent="बदलाव सहेजें";$("mpX").classList.remove("hide");$("mpH").scrollIntoView({behavior:"smooth"})}
+async function dlMP(id){if(!confirm("यह योजना हटाएँ?"))return;try{await api("/rest/v1/monthly_plans?id=eq."+id,{method:"DELETE"});if(mpEdit===id)rstMP();listMP()}catch(e){$("mpMsg2").textContent=nice(e.message)}}
+/* ---- क्विज़ बिल्डर ---- */
+var zEdit=0,ZD={},zN=0;
+async function loadZ(){
+ if(!SUBJ.length){try{SUBJ=(await api("/rest/v1/master_config?select=item_name&category=eq.subject&is_active=eq.true&order=sort.asc")).map(function(x){return x.item_name})}catch(e){}if(!SUBJ.length)SUBJ=["हिंदी","गणित","अंग्रेज़ी","पर्यावरण","विज्ञान","संस्कृत","उर्दू"]}
+ $("zC").innerHTML=so(["1","2","3","4","5","6","7","8"]);$("zS").innerHTML=so(SUBJ);if(!$("zQs").children.length)zAdd();listZ();
+}
+function zAdd(q){
+ var n=++zN,d=document.createElement("div");d.className="box";
+ d.innerHTML='<label>प्रश्न</label><textarea class="zq" style="min-height:60px"></textarea><label>विकल्प (सही वाले के आगे गोल निशान लगाइए)</label>'+[0,1,2,3].map(function(k){return'<div class="pw"><input type="radio" style="width:auto" name="za'+n+'" value="'+k+'"'+(k===0?' checked':'')+'><input class="zo" placeholder="विकल्प '+(k+1)+'"></div>'}).join("")+'<button class="btn d s" onclick="this.parentNode.remove()">यह प्रश्न हटाएँ</button>';
+ $("zQs").appendChild(d);
+ if(q){d.querySelector(".zq").value=q.q;var os=d.querySelectorAll(".zo");q.o.forEach(function(t,k){os[k].value=t});var r=d.querySelector('input[type=radio][value="'+q.a+'"]');if(r)r.checked=true}
+}
+function zCollect(){
+ var qs=[],bad="";
+ Array.prototype.forEach.call($("zQs").children,function(d,ix){
+  var t=d.querySelector(".zq").value.trim(),os=Array.prototype.map.call(d.querySelectorAll(".zo"),function(x){return x.value.trim()}),rc=d.querySelector("input[type=radio]:checked"),ri=rc?+rc.value:0;
+  if(!t)return;var opts=[],a=-1;os.forEach(function(o,k){if(o){if(k===ri)a=opts.length;opts.push(o)}});
+  if(opts.length<2||a<0){bad="प्रश्न "+(ix+1)+": कम से कम 2 विकल्प भरिए और सही विकल्प भरा हुआ चुनिए।";return}
+  qs.push({q:t,o:opts,a:a});
+ });
+ return{qs:qs,bad:bad};
+}
+function rstZ(){zEdit=0;$("zT").value="";$("zQs").innerHTML="";zAdd();$("zH").textContent="नया क्विज़";$("zBtn").textContent="सहेजें";$("zX").classList.add("hide")}
+async function saveZ(){
+ var c=zCollect(),m=$("zMsg");m.className="msg";
+ if(!$("zT").value.trim()||!c.qs.length||c.bad){m.textContent=c.bad||"शीर्षक और कम से कम एक पूरा प्रश्न भरिए।";return}
+ var o={title:$("zT").value.trim(),class_name:+$("zC").value,subject:$("zS").value,questions:c.qs,status:$("zSt").value};
+ $("zBtn").disabled=true;
+ try{if(zEdit)await api("/rest/v1/quizzes?id=eq."+zEdit,{method:"PATCH",body:o});else await api("/rest/v1/quizzes",{method:"POST",headers:{Prefer:"return=minimal"},body:o});var w=zEdit;rstZ();m.className="msg ok";m.textContent=w?"बदलाव सहेज लिया गया।":"क्विज़ सहेज लिया गया।";listZ()}
+ catch(e){m.textContent=nice(e.message)}
+ $("zBtn").disabled=false;
+}
+async function listZ(){
+ try{
+  var l=await api("/rest/v1/quizzes?select=*&order=created_at.desc&limit=100");ZD={};$("zCnt").textContent="("+l.length+")";
+  $("zList").innerHTML=l.length?l.map(function(x){ZD[x.id]=x;return'<div class="item"><span class="chip '+(x.status==="published"?"c-c":"")+'">'+(x.status==="published"?"प्रकाशित":"मसौदा")+'</span><span class="chip">'+(x.questions||[]).length+' प्रश्न</span><b style="display:block">'+esc(x.title)+'</b><div><button class="btn g s" onclick="edZ('+x.id+')">एडिट</button><button class="btn g s" onclick="zLink('+x.id+')">🔗 लिंक</button><button class="btn d s" onclick="dlZ('+x.id+')">हटाएँ</button></div></div>'}).join(""):'<div class="sub" style="padding:12px">कोई क्विज़ नहीं।</div>';
+  $("zMsg2").textContent="";
+ }catch(e){$("zMsg2").textContent=nice(e.message)}
+}
+function edZ(id){var x=ZD[id];zEdit=id;$("zT").value=x.title;$("zC").value=x.class_name||"1";$("zS").value=x.subject||SUBJ[0];$("zSt").value=x.status;$("zQs").innerHTML="";(x.questions||[]).forEach(zAdd);$("zH").textContent="क्विज़ में बदलाव";$("zBtn").textContent="बदलाव सहेजें";$("zX").classList.remove("hide");$("zH").scrollIntoView({behavior:"smooth"})}
+function zLink(id){
+ var u=(TEACHER_SITE||"").replace(/\/$/,"")+"/quiz.html?id="+id;
+ if(!TEACHER_SITE){alert("पहले फ़ाइल के ऊपर TEACHER_SITE में शिक्षक वाली साइट का पता भरिए। लिंक का अंत यह होगा: /quiz.html?id="+id);return}
+ if(ZD[id].status!=="published")alert("यह क्विज़ अभी मसौदा है। लिंक तभी खुलेगा जब स्थिति 'प्रकाशित' होगी।");
+ (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){alert("लिंक कॉपी हो गया:\n"+u)},function(){prompt("इस लिंक को कॉपी कीजिए:",u)});
+}
+async function dlZ(id){if(!confirm("यह क्विज़ हटाएँ?"))return;try{await api("/rest/v1/quizzes?id=eq."+id,{method:"DELETE"});if(zEdit===id)rstZ();listZ()}catch(e){$("zMsg2").textContent=nice(e.message)}}
+/* ---- गतिविधि का लेखा ---- */
+async function loadLog(){
+ try{
+  var l=await api("/rest/v1/admin_log?select=*&order=created_at.desc&limit=50"),ids=[];l.forEach(function(x){if(x.actor&&ids.indexOf(x.actor)<0)ids.push(x.actor)});
+  var nm={};if(ids.length)(await api("/rest/v1/profiles?select=id,full_name&id=in.("+ids.join(",")+")")).forEach(function(p){nm[p.id]=p.full_name});
+  $("sLogL").innerHTML=l.length?l.map(function(x){return'<div class="item"><b>'+esc(nm[x.actor]||"")+'</b> · '+esc(x.action)+'<div class="sub" style="margin:0">'+String(x.created_at).slice(0,16).replace("T"," ")+(x.detail?' · '+esc(JSON.stringify(x.detail)).slice(0,120):'')+'</div></div>'}).join(""):'<div class="sub" style="padding:12px">अभी कोई गतिविधि दर्ज नहीं।</div>';
+ }catch(e){}
+}
+/* ---- पासवर्ड रीसेट (Supabase Edge Function) ---- */
+async function rsPw(id){
+ var t=prompt("शिक्षक के लिए अस्थायी नया पासवर्ड लिखिए (कम से कम 8 अक्षर)। यह शिक्षक को बता दीजिए, वह 🔑 से इसे बदल लेगा।","");if(!t)return;
+ if(t.length<8){$("uMsg").textContent="पासवर्ड कम से कम 8 अक्षर का हो।";return}
+ try{await fresh();var r=await fetch(SB+"/functions/v1/reset-password",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+S.access_token,"Content-Type":"application/json"},body:JSON.stringify({target:id,password:t})}),j=await r.json().catch(function(){return{}});
+  if(!r.ok)throw new Error(j.error||j.message||"रीसेट नहीं हुआ (फ़ंक्शन चालू है?)");$("uMsg").className="msg ok";$("uMsg").textContent="पासवर्ड बदल गया। अब यह नया पासवर्ड शिक्षक को बता दीजिए।"}
+ catch(e){$("uMsg").className="msg";$("uMsg").textContent=nice(e.message)}
+}
+/* ---- दो-चरण सत्यापन ---- */
+var mfaF="",mfaPend="";
+function aalOf(t){try{return JSON.parse(atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).aal}catch(e){return""}}
+async function mfaCheck(){var u=await api("/auth/v1/user"),f=(u.factors||[]).filter(function(x){return x.factor_type==="totp"&&x.status==="verified"});if(f.length&&aalOf(S.access_token)!=="aal2"){mfaF=f[0].id;return true}return false}
+async function afterPw(){if(await mfaCheck()){$("auth").classList.remove("hide");$("app").classList.add("hide");$("mfaBox").classList.remove("hide");$("bL").classList.add("hide");$("mfaC").focus();return}await enter()}
+async function mfaGo(){
+ var c=$("mfaC").value.trim(),m=$("lMsg");
+ try{var ch=await api("/auth/v1/factors/"+mfaF+"/challenge",{method:"POST",body:{}}),j=await api("/auth/v1/factors/"+mfaF+"/verify",{method:"POST",body:{challenge_id:ch.id,code:c}});setSess(j);$("mfaBox").classList.add("hide");$("bL").classList.remove("hide");$("mfaC").value="";await enter()}
+ catch(e){m.textContent="कोड गलत है या समय ख़त्म हो गया। ऐप का नया कोड लिखिए।"}
+}
+async function mfaStart(){
+ var m=$("mfaM");m.className="msg";m.textContent="";$("mfaSet").classList.remove("hide");$("mfaSet").scrollIntoView({behavior:"smooth"});
+ try{var r=await api("/auth/v1/factors",{method:"POST",body:{factor_type:"totp",friendly_name:"SS "+Date.now()}});mfaPend=r.id;
+  $("mfaQr").innerHTML=r.totp&&r.totp.qr_code?'<img alt="QR" style="width:180px;background:#fff;border-radius:8px" src="'+esc(r.totp.qr_code)+'">':'';$("mfaSecret").textContent="गुप्त कुंजी: "+(r.totp?r.totp.secret:"")}
+ catch(e){m.textContent=nice(e.message)}
+}
+async function mfaOn(){
+ var m=$("mfaM");m.className="msg";
+ try{var ch=await api("/auth/v1/factors/"+mfaPend+"/challenge",{method:"POST",body:{}}),j=await api("/auth/v1/factors/"+mfaPend+"/verify",{method:"POST",body:{challenge_id:ch.id,code:$("mfaV").value.trim()}});setSess(j);m.className="msg ok";m.textContent="दो-चरण सत्यापन चालू हो गया। अगले लॉगिन से कोड माँगा जाएगा।";$("mfaV").value=""}
+ catch(e){m.textContent="कोड गलत है। ऐप का नया कोड लिखिए।"}
+}
+(async function(){try{S=JSON.parse(localStorage.getItem("ssa")||"null")}catch(e){S=null}if(S){try{await afterPw()}catch(e){logout()}}})();
+</script>
+</body>
+</html>
